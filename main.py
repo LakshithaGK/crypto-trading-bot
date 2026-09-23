@@ -31,7 +31,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 BYBIT_API_KEY = "2iWIcFsQp4SCxwGOy8"
 BYBIT_SECRET_KEY = "SujfI2OohVJZKWReeISLTJL2pr2ZsshAIioS"
 TELEGRAM_BOT_TOKEN = "8965234283:AAHz0KpVqnjm1uBSm9e80xI0_9P-Ut0wnbI"
-TELEGRAM_CHAT_ID = "8965234283"
+TELEGRAM_CHAT_ID = "1421079683"
 
 # --- 📊 Futures Risk Management & Scalping Settings ---
 TRADE_MARGIN_USDT = 10.0
