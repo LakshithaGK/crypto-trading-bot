@@ -30,8 +30,8 @@ sys.stdout.reconfigure(encoding='utf-8')
 # --- 🔑 API සහ Telegram සැකසුම් ---
 BYBIT_API_KEY = "2iWIcFsQp4SCxwGOy8"
 BYBIT_SECRET_KEY = "SujfI2OohVJZKWReeISLTJL2pr2ZsshAIioS"
-TELEGRAM_BOT_TOKEN = "8965234283:AAHZ0kV9anlm1URSm9e8AxTQ9P-UtOwnhT"
-TELEGRAM_CHAT_ID = "1421079683"
+TELEGRAM_BOT_TOKEN = "8965234283:AAHz0KpVqnjm1uBSm9e80xI0_9P-Ut0wnbI"
+TELEGRAM_CHAT_ID = "8965234283"
 
 # --- 📊 Futures Risk Management & Scalping Settings ---
 TRADE_MARGIN_USDT = 10.0
@@ -65,14 +65,15 @@ def trading_bot_loop():
     print("🚀 Ultimate Scalping Trading Bot Loop Started Successfully...")
     send_telegram_message("🚀 *Crypto Scalping Bot Started 24/7 Live on Cloud!*")
     
+    loop_count = 0
     while True:
         try:
+            loop_count += 1
+            print(f"🔄 Bot checking market data... Loop cycle: {loop_count}")
+            
             # --- මෙතනට ඔයාගේ ස්ට්‍රැටජි කෝඩ් එක (Indicators, Market Analysis, Entry/Exit Logic) වැටේ ---
-            # උදාහරණයක් ලෙස මාකට් ඩේටා ලබාගෙන ස්කැල්පින් එන්ට්‍රි සෙවීම:
             
-            # (ඔයාගේ ප්‍රධාන ස්ට්‍රැටජි ලූප් එක මෙතැන ක්‍රියාත්මක වේ)
-            
-            # ሰර්වර් එකට වැඩි බරක් නොවී, ස්කැල්පින් වලට ගැළපෙන විදිහට ලූප් ටයිමින් එක මෙතනින් පාලනය වේ
+            # 10 තත්පරයකට වරක් ලූප් එක ක්‍රියාත්මක වේ
             time.sleep(10)
             
         except Exception as e:
