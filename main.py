@@ -8,20 +8,20 @@ import ccxt
 import pandas as pd
 import numpy as np
 
-# --- 🌐 වෙබ් සර්වර් සැකසුම (Render එක වෙනුවෙන්) ---
+# --- 🌐 වෙබ් සර්වර් සැකසුම (Render Free Tier එක නිදාගැනීම වැළැක්වීමට) ---
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "Bot is running!"
+    return "Crypto Scalping Bot is running 24/7 live!"
 
 def run():
-    # Render එකෙන් Environment එකේ දෙන Port එක නැත්නම් 8080 පාවිච්චි කරයි
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
 
 def keep_alive():
     t = threading.Thread(target=run)
+    t.daemon = True
     t.start()
 
 # --- ⚙️ ටර්මිනල් කෝඩින්ග් සඳහා UTF-8 සෙටප් එක ---
@@ -33,24 +33,64 @@ BYBIT_SECRET_KEY = "SujfI2OohVJZKWReeISLTJL2pr2ZsshAIioS"
 TELEGRAM_BOT_TOKEN = "8965234283:AAHZ0kV9anlm1URSm9e8AxTQ9P-UtOwnhT"
 TELEGRAM_CHAT_ID = "1421079683"
 
-# --- 📊 Futures Risk Management ---
+# --- 📊 Futures Risk Management & Scalping Settings ---
 TRADE_MARGIN_USDT = 10.0
 LEVERAGE = 10
 
-# ==========================================
-# බොට්ගේ ප්‍රධාන ලූප් සහ ට්‍රේඩිං කෝඩ් එක මෙතනින් පහළට තියෙන්න දෙන්න
-# ==========================================
+# Bybit এক্সচেන්ජ් එක සම්බන්ධ කිරීම (CCXT)
+exchange = ccxt.bybit({
+    'apiKey': BYBIT_API_KEY,
+    'secret': BYBIT_SECRET_KEY,
+    'options': {
+        'defaultType': 'future',
+    },
+})
 
-if __name__ == "__main__":
-    # වෙබ් සර්වර් එක බැක්ග්‍රাউন্ড එකෙන් ස්ටාර්ට් කරයි
-    keep_alive()
+def send_telegram_message(message):
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": message,
+            "parse_mode": "Markdown"
+        }
+        requests.post(url, json=payload)
+    except Exception as e:
+        print(f"Telegram Error: {e}")
+
+# ==========================================
+# 🚀 ලෝකයේ සුපිරිම ස්කැල්පින් ස්ට්‍රැටජි ප්‍රධාන ලූප් එක
+# ==========================================
+def trading_bot_loop():
+    print("🚀 Ultimate Scalping Trading Bot Loop Started Successfully...")
+    send_telegram_message("🚀 *Crypto Scalping Bot Started 24/7 Live on Cloud!*")
     
-    # ඔයාගේ බොට්ගේ ප්‍රධාන ලූප් එක මෙතැනින් වැඩ කරන්න පටන් ගනී
-    print("Trading bot started successfully...")
     while True:
         try:
-            # මෙතනට ඔයාගේ ලූප් කෝඩ් එක දාන්න
-            time.sleep(15)
+            # --- මෙතනට ඔයාගේ ස්ට්‍රැටජි කෝඩ් එක (Indicators, Market Analysis, Entry/Exit Logic) වැටේ ---
+            # උදාහරණයක් ලෙස මාකට් ඩේටා ලබාගෙන ස්කැල්පින් එන්ට්‍රි සෙවීම:
+            
+            # (ඔයාගේ ප්‍රධාන ස්ට්‍රැටජි ලූප් එක මෙතැන ක්‍රියාත්මක වේ)
+            
+            # ሰර්වර් එකට වැඩි බරක් නොවී, ස්කැල්පින් වලට ගැළපෙන විදිහට ලූප් ටයිමින් එක මෙතනින් පාලනය වේ
+            time.sleep(10)
+            
         except Exception as e:
-            print(f"Error: {e}")
-            time.sleep(5)
+            error_msg = f"⚠️ *Trade Error!*\n`{str(e)}`"
+            print(error_msg)
+            send_telegram_message(error_msg)
+            time.sleep(10)
+
+if __name__ == "__main__":
+    # 1. බැග්‍රවුන්ඩ් එකෙන් වෙබ් සර්වර් එක ස්ටාර්ට් කරයි (UptimeRobot එකට රెస్පොන්ස් කිරීමට)
+    keep_alive()
+    print("🌐 Web server background thread started...")
+    
+    # 2. සුපිරි ට්‍රේඩිං බොට් ස්ට්‍රැටජි ලූප් එක වෙනම ත්‍රේඩ් එකක ක්‍රියාත්මක කරයි
+    bot_thread = threading.Thread(target=trading_bot_loop)
+    bot_thread.daemon = True
+    bot_thread.start()
+    
+    # ප්‍රධාන ප්‍රෝග්‍රෑම් එක නතර නොවී අඛණ්ඩව පවත්වා ගැනීමට
+    while True:
+        time.sleep(1)
