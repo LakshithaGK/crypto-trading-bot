@@ -1,17 +1,37 @@
+from flask import Flask
+import threading
 import sys
-sys.stdout.reconfigure(encoding='utf-8')
-
-import ccxt
 import time
 import requests
+import ccxt
 import pandas as pd
 import numpy as np
 
-# --- 🔒 API සහ Telegram සැකසුම් ---
+# --- 🌐 වෙබ් සර්වර් සැකසුම (Render Free එක වෙනුවෙන්) ---
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = threading.Thread(target=run)
+    t.start()
+
+# --- ⚙️ ටර්මිනල් කෝඩින්ග් සඳහා UTF-8 සෙටප් එක ---
+sys.stdout.reconfigure(encoding='utf-8')
+
+# --- 🔑 API සහ Telegram සැකසුම් ---
 BYBIT_API_KEY = "2iWIcFsQp4SCxwGOy8"
 BYBIT_SECRET_KEY = "SujfI2OohVJZKWReeISLTJL2pr2ZsshAIioS"
+TELEGRAM_BOT_TOKEN = "8965234283:AAHZ0kV9anlm1URSm9e8AxTQ9P-UtOwnhT"
 
-TELEGRAM_BOT_TOKEN = "8965234283:AAHz0KpVqnjm1uBSm9e80xI0_9P-Ut0wnbI"
+# ==========================================
+# මෙතනින් පහළට ඔයාගේ පරණ බොට් ලූප් කෝඩ් එක තියෙන්න දෙන්න
+# ==========================================
 TELEGRAM_CHAT_ID = "1421079683"
 
 # --- 🛡️ Futures Risk Management ---
