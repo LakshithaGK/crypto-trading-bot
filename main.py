@@ -13,7 +13,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "Ultra Sniper Crypto Scalping Bot (5m) is running 24/7 live!"
+    return "Ultra Sniper Crypto Scalping Bot (5m) is running 24/7 securely!"
 
 def run():
     port = int(os.environ.get("PORT", 8080))
@@ -26,15 +26,15 @@ def keep_alive():
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-# --- 🔑 API සහ Telegram සැකසුම් ---
-BYBIT_API_KEY = "2iWIcFsQp4SCxwGOy8"
-BYBIT_SECRET_KEY = "SujfI2OohVJZKWReeISLTJL2pr2ZsshAIioS"
-TELEGRAM_BOT_TOKEN = "8965234283:AAHz0KpVqnjm1uBSm9e80xI0_9P-Ut0wnbI"
-TELEGRAM_CHAT_ID = "1421079683"
+# --- 🔑 API සහ Telegram සැකසුම් (සම්පූර්ණයෙන්ම ආරක්ෂිතයි) ---
+BYBIT_API_KEY = os.environ.get("BYBIT_API_KEY")
+BYBIT_SECRET_KEY = os.environ.get("BYBIT_SECRET_KEY")
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
 # --- 📊 Futures Risk Management & Sniper Settings ---
 SYMBOL = 'BTC/USDT:USDT'
-TIMEFRAME = '5m'  # 1m වෙනුවට 5m චාට් එකට මාරු කර ඇත
+TIMEFRAME = '5m'
 TRADE_MARGIN_USDT = 10.0
 LEVERAGE = 10
 
@@ -48,13 +48,14 @@ exchange = ccxt.bybit({
 
 def send_telegram_message(message):
     try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            "chat_id": TELEGRAM_CHAT_ID,
-            "text": message,
-            "parse_mode": "Markdown"
-        }
-        requests.post(url, json=payload)
+        if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+            payload = {
+                "chat_id": TELEGRAM_CHAT_ID,
+                "text": message,
+                "parse_mode": "Markdown"
+            }
+            requests.post(url, json=payload)
     except Exception as e:
         print(f"Telegram Error: {e}")
 
@@ -178,7 +179,7 @@ def check_market_and_trade():
 
 def trading_bot_loop():
     print("🚀 Ultra Sniper Trading Bot (5m) Loop Started Successfully...")
-    send_telegram_message("🚀 *Ultra Sniper Scalping Bot (5m) Started 24/7 Live!*")
+    send_telegram_message("🚀 *Ultra Sniper Scalping Bot (5m) Started 24/7 Securely!*")
     
     while True:
         try:
