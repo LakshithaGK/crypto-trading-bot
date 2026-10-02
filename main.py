@@ -8,12 +8,12 @@ import ccxt
 import pandas as pd
 import numpy as np
 
-# --- 🌐 වෙබ් සර්වර් සැකසුම ---
+# --- 🌐 වෙබ් සර්වර් සැකසුම (24/7 Uptime) ---
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "Ultra Sniper Crypto Scalping Bot (5m) is running 24/7 securely!"
+    return "Ultimate 50x Trailing Sniper Bot is running securely!"
 
 def run():
     port = int(os.environ.get("PORT", 8080))
@@ -27,16 +27,17 @@ def keep_alive():
 sys.stdout.reconfigure(encoding='utf-8')
 
 # --- 🔑 API සහ Telegram සැකසුම් (සම්පූර්ණයෙන්ම ආරක්ෂිතයි) ---
+# මෙම දත්ත ලබාගන්නේ Render Environment Variables හරහා පමණි
 BYBIT_API_KEY = os.environ.get("BYBIT_API_KEY")
 BYBIT_SECRET_KEY = os.environ.get("BYBIT_SECRET_KEY")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-# --- 📊 Futures Risk Management & Sniper Settings ---
+# --- 📊 Ultimate Strategy Settings ---
 SYMBOL = 'BTC/USDT:USDT'
-TIMEFRAME = '5m'
-TRADE_MARGIN_USDT = 10.0
-LEVERAGE = 10
+TIMEFRAME = '5m'         # 100% ෂුවර් එන්ට්‍රි සඳහා 5m චාට් එක
+TRADE_MARGIN_USDT = 9.0  # බැලන්ස් එක 10ක් නිසා 9ක් පාවිච්චි කරමු
+LEVERAGE = 50            # 50x සුපිරි ලීවරේජ් එක (ක්ෂණික ලාභ සඳහා)
 
 exchange = ccxt.bybit({
     'apiKey': BYBIT_API_KEY,
@@ -66,11 +67,13 @@ def set_leverage():
         print(f"Leverage Error: {e}")
 
 def calculate_indicators(df):
+    # Momentum (කෙටි කාලීන වේගය)
     df['EMA_Fast'] = df['close'].ewm(span=9, adjust=False).mean()
     df['EMA_Slow'] = df['close'].ewm(span=21, adjust=False).mean()
-    # ප්‍රධාන ට්‍රෙන්ඩ් එක බලාගැනීම සඳහා දිගු EMA (EMA 50)
+    # Trend Filter (ප්‍රධාන දිශාව)
     df['EMA_Trend'] = df['close'].ewm(span=50, adjust=False).mean()
     
+    # RSI (අධි-මිලදීගැනීම් / අධි-විකිණුම්)
     delta = df['close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
@@ -100,10 +103,13 @@ def check_market_and_trade():
                 active_position = True
                 break
 
+        # දැනට ට්‍රේඩ් එකක් රන් වෙන්නේ නැත්නම් පමණක් අලුත් එන්ට්‍රි සෙවීම
         if not active_position:
-            # 🚀 100% KANFIRM LONG (Uptrend + RSI < 35)
+            
+            # 🚀 100% PERFECT LONG ENTRY 🚀
+            # කොන්දේසි: ප්‍රයිස් එක Trend EMA එකට උඩින් + Fast EMA > Slow EMA + RSI 35ට අඩුයි (Oversold)
             if current_price > trend_ema and fast_ema > slow_ema and rsi < 35:
-                print("🟢 100% Confirmed Buy signal detected! Executing LONG order...")
+                print("🟢 Perfect Buy signal! Executing 50x LONG...")
                 
                 balance = exchange.fetch_balance()
                 free_usdt = balance['USDT']['free']
@@ -112,34 +118,38 @@ def check_market_and_trade():
                     set_leverage()
                     amount = (TRADE_MARGIN_USDT * LEVERAGE) / current_price
                     
-                    # TP +1.0% | SL -0.5%
-                    tp_price = round(current_price * 1.01, 2)
-                    sl_price = round(current_price * 0.995, 2)
+                    # 0.4% TP | 0.2% SL | 0.2% Trailing Stop Distance
+                    tp_price = round(current_price * 1.004, 2)
+                    sl_price = round(current_price * 0.998, 2)
+                    trailing_dist = round(current_price * 0.002, 2)
                     
                     params = {
                         'takeProfit': tp_price,
-                        'stopLoss': sl_price
+                        'stopLoss': sl_price,
+                        'trailingStop': trailing_dist
                     }
                     
                     order = exchange.create_market_buy_order(SYMBOL, amount, params=params)
                     
                     msg = (
-                        f"🎯 *SNIPER LONG ENTRY (5m)* 🎯\n\n"
+                        f"🚀 *ULTIMATE 50x LONG* 🚀\n\n"
                         f"🟢 දිශාව: **BUY (LONG)**\n"
                         f"💰 මාජින්: **${TRADE_MARGIN_USDT} ({LEVERAGE}x)**\n"
                         f"🎯 Entry: **${current_price}**\n"
-                        f"🎯 TP (1.0%): **${tp_price}**\n"
-                        f"🛑 SL (0.5%): **${sl_price}**\n"
-                        f"📈 RSI: `{rsi:.2f}`"
+                        f"🎯 Target (TP): **${tp_price}** (+0.4%)\n"
+                        f"🛑 Initial SL: **${sl_price}** (-0.2%)\n"
+                        f"🛡️ Trailing Stop: සක්‍‍රීයයි! (Distance: {trailing_dist})\n"
+                        f"📈 RSI Level: `{rsi:.2f}`"
                     )
                     send_telegram_message(msg)
-                    print("✅ Sniper Long order executed successfully!")
+                    print("✅ 50x Long order with Trailing Stop executed successfully!")
                 else:
                     print("⚠️ Available balance not enough!")
 
-            # 🔻 100% KANFIRM SHORT (Downtrend + RSI > 65)
+            # 🔻 100% PERFECT SHORT ENTRY 🔻
+            # කොන්දේසි: ප්‍රයිස් එක Trend EMA එකට යටින් + Fast EMA < Slow EMA + RSI 65ට වැඩියි (Overbought)
             elif current_price < trend_ema and fast_ema < slow_ema and rsi > 65:
-                print("🔴 100% Confirmed Sell signal detected! Executing SHORT order...")
+                print("🔴 Perfect Sell signal! Executing 50x SHORT...")
                 
                 balance = exchange.fetch_balance()
                 free_usdt = balance['USDT']['free']
@@ -148,38 +158,41 @@ def check_market_and_trade():
                     set_leverage()
                     amount = (TRADE_MARGIN_USDT * LEVERAGE) / current_price
                     
-                    # TP -1.0% | SL +0.5%
-                    tp_price = round(current_price * 0.99, 2)
-                    sl_price = round(current_price * 1.005, 2)
+                    # 0.4% TP | 0.2% SL | 0.2% Trailing Stop Distance
+                    tp_price = round(current_price * 0.996, 2)
+                    sl_price = round(current_price * 1.002, 2)
+                    trailing_dist = round(current_price * 0.002, 2)
                     
                     params = {
                         'takeProfit': tp_price,
-                        'stopLoss': sl_price
+                        'stopLoss': sl_price,
+                        'trailingStop': trailing_dist
                     }
                     
                     order = exchange.create_market_sell_order(SYMBOL, amount, params=params)
                     
                     msg = (
-                        f"🎯 *SNIPER SHORT ENTRY (5m)* 🎯\n\n"
+                        f"🚀 *ULTIMATE 50x SHORT* 🚀\n\n"
                         f"🔴 දිශාව: **SELL (SHORT)**\n"
                         f"💰 මාජින්: **${TRADE_MARGIN_USDT} ({LEVERAGE}x)**\n"
                         f"🎯 Entry: **${current_price}**\n"
-                        f"🎯 TP (1.0%): **${tp_price}**\n"
-                        f"🛑 SL (0.5%): **${sl_price}**\n"
-                        f"📉 RSI: `{rsi:.2f}`"
+                        f"🎯 Target (TP): **${tp_price}** (+0.4%)\n"
+                        f"🛑 Initial SL: **${sl_price}** (-0.2%)\n"
+                        f"🛡️ Trailing Stop: සක්‍රීයයි! (Distance: {trailing_dist})\n"
+                        f"📉 RSI Level: `{rsi:.2f}`"
                     )
                     send_telegram_message(msg)
-                    print("✅ Sniper Short order executed successfully!")
+                    print("✅ 50x Short order with Trailing Stop executed successfully!")
                 else:
                     print("⚠️ Available balance not enough!")
 
     except Exception as e:
-        error_msg = f"⚠️ *Trade Error!*\n`{str(e)}`"
+        error_msg = f"⚠️️ *Trade Error!*\n`{str(e)}`"
         print(error_msg)
 
 def trading_bot_loop():
-    print("🚀 Ultra Sniper Trading Bot (5m) Loop Started Successfully...")
-    send_telegram_message("🚀 *Ultra Sniper Scalping Bot (5m) Started 24/7 Securely!*")
+    print("🚀 Ultimate Sniper 50x Trailing Bot Started...")
+    send_telegram_message("🚀 *Ultimate 50x Trailing Sniper Bot Started 24/7 Securely!*")
     
     while True:
         try:
