@@ -63,7 +63,6 @@ def set_leverage():
     try:
         exchange.set_leverage(LEVERAGE, SYMBOL)
     except Exception as e:
-        # ලීවරේජ් එක කලින්ම සෙට් වෙලා නම් එන එරර් එක ඉග්නෝර් කරන්න
         pass
 
 def calculate_indicators(df):
@@ -85,7 +84,6 @@ def check_market_and_trade():
         
         df = calculate_indicators(df)
         
-        # FIX: අගයන් ඔක්කොම Python float විදිහට convert කිරීම
         current_price = float(df['close'].iloc[-1])
         fast_ema = float(df['EMA_Fast'].iloc[-1])
         slow_ema = float(df['EMA_Slow'].iloc[-1])
@@ -112,18 +110,17 @@ def check_market_and_trade():
                 
                 if free_usdt >= TRADE_MARGIN_USDT:
                     set_leverage()
-                    # FIX: Amount එකත් float කිරීම
                     amount = float((TRADE_MARGIN_USDT * LEVERAGE) / current_price)
                     
-                    # 0.3% TP | 0.2% SL | 0.15% Trailing Stop
                     tp_price = float(round(current_price * 1.003, 2))
                     sl_price = float(round(current_price * 0.998, 2))
                     trailing_dist = float(round(current_price * 0.0015, 2))
                     
+                    # FIX: Bybit API එකට ගැළපෙන විදිහට Parameter නම් (Keys) වෙනස් කිරීම
                     params = {
-                        'takeProfit': tp_price,
-                        'stopLoss': sl_price,
-                        'trailingStop': trailing_dist
+                        'takeProfitPrice': tp_price,
+                        'stopLossPrice': sl_price,
+                        'trailingAmount': trailing_dist
                     }
                     
                     order = exchange.create_market_buy_order(SYMBOL, amount, params=params)
@@ -158,10 +155,11 @@ def check_market_and_trade():
                     sl_price = float(round(current_price * 1.002, 2))
                     trailing_dist = float(round(current_price * 0.0015, 2))
                     
+                    # FIX: Bybit API එකට ගැළපෙන විදිහට Parameter නම් (Keys) වෙනස් කිරීම
                     params = {
-                        'takeProfit': tp_price,
-                        'stopLoss': sl_price,
-                        'trailingStop': trailing_dist
+                        'takeProfitPrice': tp_price,
+                        'stopLossPrice': sl_price,
+                        'trailingAmount': trailing_dist
                     }
                     
                     order = exchange.create_market_sell_order(SYMBOL, amount, params=params)
@@ -187,7 +185,7 @@ def check_market_and_trade():
 
 def trading_bot_loop():
     print("🚀 High-Frequency 50x Trailing Bot Started...")
-    send_telegram_message("🚀 *High-Freq 50x Trailing Sniper Bot Started 24/7! (JSON Error Fixed)*")
+    send_telegram_message("🚀 *High-Freq 50x Trailing Sniper Bot Started! (API Params Fixed)*")
     
     while True:
         try:
