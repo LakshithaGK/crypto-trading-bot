@@ -13,7 +13,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "High-Frequency 50x Trailing Sniper Bot is running securely!"
+    return "High-Frequency 50x Sniper Bot is running securely!"
 
 def run():
     port = int(os.environ.get("PORT", 8080))
@@ -26,7 +26,7 @@ def keep_alive():
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-# --- 🔑 API සහ Telegram සැකසුම් (සම්පූර්ණයෙන්ම ආරක්ෂිතයි) ---
+# --- 🔑 API සහ Telegram සැකසුම් ---
 BYBIT_API_KEY = os.environ.get("BYBIT_API_KEY")
 BYBIT_SECRET_KEY = os.environ.get("BYBIT_SECRET_KEY")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -35,8 +35,8 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 # --- 📊 High-Frequency Sniper Settings ---
 SYMBOL = 'BTC/USDT:USDT'
 TIMEFRAME = '5m'         
-TRADE_MARGIN_USDT = 9.0  # බැලන්ස් එක 10ක් නිසා 9ක් පාවිච්චි කරමු
-LEVERAGE = 50            # 50x සුපිරි ලීවරේජ් එක
+TRADE_MARGIN_USDT = 9.0  
+LEVERAGE = 50            
 
 exchange = ccxt.bybit({
     'apiKey': BYBIT_API_KEY,
@@ -112,15 +112,13 @@ def check_market_and_trade():
                     set_leverage()
                     amount = float((TRADE_MARGIN_USDT * LEVERAGE) / current_price)
                     
+                    # Trailing Stop අයින් කරලා, TP සහ SL පමණක් යොදා ඇත
                     tp_price = float(round(current_price * 1.003, 2))
                     sl_price = float(round(current_price * 0.998, 2))
-                    trailing_dist = float(round(current_price * 0.0015, 2))
                     
-                    # FIX: Bybit API එකට ගැළපෙන විදිහට Parameter නම් (Keys) වෙනස් කිරීම
                     params = {
-                        'takeProfitPrice': tp_price,
-                        'stopLossPrice': sl_price,
-                        'trailingAmount': trailing_dist
+                        'takeProfit': tp_price,
+                        'stopLoss': sl_price
                     }
                     
                     order = exchange.create_market_buy_order(SYMBOL, amount, params=params)
@@ -131,8 +129,7 @@ def check_market_and_trade():
                         f"💰 මාජින්: **${TRADE_MARGIN_USDT} ({LEVERAGE}x)**\n"
                         f"🎯 Entry: **${current_price}**\n"
                         f"🎯 Quick TP: **${tp_price}** (+0.3%)\n"
-                        f"🛑 Initial SL: **${sl_price}** (-0.2%)\n"
-                        f"🛡️ Trailing Stop: සක්‍‍රීයයි! (Distance: 0.15%)\n"
+                        f"🛑 SL: **${sl_price}** (-0.2%)\n"
                         f"📈 RSI Level: `{rsi:.2f}`"
                     )
                     send_telegram_message(msg)
@@ -151,15 +148,13 @@ def check_market_and_trade():
                     set_leverage()
                     amount = float((TRADE_MARGIN_USDT * LEVERAGE) / current_price)
                     
+                    # Trailing Stop අයින් කරලා, TP සහ SL පමණක් යොදා ඇත
                     tp_price = float(round(current_price * 0.997, 2))
                     sl_price = float(round(current_price * 1.002, 2))
-                    trailing_dist = float(round(current_price * 0.0015, 2))
                     
-                    # FIX: Bybit API එකට ගැළපෙන විදිහට Parameter නම් (Keys) වෙනස් කිරීම
                     params = {
-                        'takeProfitPrice': tp_price,
-                        'stopLossPrice': sl_price,
-                        'trailingAmount': trailing_dist
+                        'takeProfit': tp_price,
+                        'stopLoss': sl_price
                     }
                     
                     order = exchange.create_market_sell_order(SYMBOL, amount, params=params)
@@ -170,8 +165,7 @@ def check_market_and_trade():
                         f"💰 මාජින්: **${TRADE_MARGIN_USDT} ({LEVERAGE}x)**\n"
                         f"🎯 Entry: **${current_price}**\n"
                         f"🎯 Quick TP: **${tp_price}** (+0.3%)\n"
-                        f"🛑 Initial SL: **${sl_price}** (-0.2%)\n"
-                        f"🛡️ Trailing Stop: සක්‍රීයයි! (Distance: 0.15%)\n"
+                        f"🛑 SL: **${sl_price}** (-0.2%)\n"
                         f"📉 RSI Level: `{rsi:.2f}`"
                     )
                     send_telegram_message(msg)
@@ -184,8 +178,8 @@ def check_market_and_trade():
         print(error_msg)
 
 def trading_bot_loop():
-    print("🚀 High-Frequency 50x Trailing Bot Started...")
-    send_telegram_message("🚀 *High-Freq 50x Trailing Sniper Bot Started! (API Params Fixed)*")
+    print("🚀 High-Frequency 50x Sniper Bot Started...")
+    send_telegram_message("🚀 *High-Freq 50x Sniper Bot Started! (Zero Position Error Fixed)*")
     
     while True:
         try:
