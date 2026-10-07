@@ -63,7 +63,8 @@ def set_leverage():
     try:
         exchange.set_leverage(LEVERAGE, SYMBOL)
     except Exception as e:
-        print(f"Leverage Error: {e}")
+        # ලීවරේජ් එක කලින්ම සෙට් වෙලා නම් එන එරර් එක ඉග්නෝර් කරන්න
+        pass
 
 def calculate_indicators(df):
     df['EMA_Fast'] = df['close'].ewm(span=9, adjust=False).mean()
@@ -84,11 +85,12 @@ def check_market_and_trade():
         
         df = calculate_indicators(df)
         
-        current_price = df['close'].iloc[-1]
-        fast_ema = df['EMA_Fast'].iloc[-1]
-        slow_ema = df['EMA_Slow'].iloc[-1]
-        trend_ema = df['EMA_Trend'].iloc[-1]
-        rsi = df['RSI'].iloc[-1]
+        # FIX: අගයන් ඔක්කොම Python float විදිහට convert කිරීම
+        current_price = float(df['close'].iloc[-1])
+        fast_ema = float(df['EMA_Fast'].iloc[-1])
+        slow_ema = float(df['EMA_Slow'].iloc[-1])
+        trend_ema = float(df['EMA_Trend'].iloc[-1])
+        rsi = float(df['RSI'].iloc[-1])
         
         print(f"📊 Price: {current_price} | Trend EMA: {trend_ema:.2f} | RSI: {rsi:.2f}")
 
@@ -102,21 +104,21 @@ def check_market_and_trade():
         if not active_position:
             
             # 🚀 HIGHLY ACCURATE LONG ENTRY 🚀
-            # කොන්දේසි: Trend එක උඩට + Momentum එක උඩට + RSI එක 65ට අඩුයි (තවත් උඩට යන්න ඉඩ තියෙනවා)
             if current_price > trend_ema and fast_ema > slow_ema and rsi < 65:
                 print("🟢 High-Accuracy Buy signal! Executing 50x LONG...")
                 
                 balance = exchange.fetch_balance()
-                free_usdt = balance['USDT']['free']
+                free_usdt = float(balance['USDT']['free'])
                 
                 if free_usdt >= TRADE_MARGIN_USDT:
                     set_leverage()
-                    amount = (TRADE_MARGIN_USDT * LEVERAGE) / current_price
+                    # FIX: Amount එකත් float කිරීම
+                    amount = float((TRADE_MARGIN_USDT * LEVERAGE) / current_price)
                     
-                    # 0.3% TP | 0.2% SL | 0.15% Trailing Stop Distance (ඉතාම ළඟින් ආරක්ෂාව)
-                    tp_price = round(current_price * 1.003, 2)
-                    sl_price = round(current_price * 0.998, 2)
-                    trailing_dist = round(current_price * 0.0015, 2)
+                    # 0.3% TP | 0.2% SL | 0.15% Trailing Stop
+                    tp_price = float(round(current_price * 1.003, 2))
+                    sl_price = float(round(current_price * 0.998, 2))
+                    trailing_dist = float(round(current_price * 0.0015, 2))
                     
                     params = {
                         'takeProfit': tp_price,
@@ -142,21 +144,19 @@ def check_market_and_trade():
                     print("⚠️ Available balance not enough!")
 
             # 🔻 HIGHLY ACCURATE SHORT ENTRY 🔻
-            # කොන්දේසි: Trend එක පල්ලෙහාට + Momentum එක පල්ලෙහාට + RSI එක 35ට වැඩියි (තවත් පල්ලෙහාට යන්න ඉඩ තියෙනවා)
             elif current_price < trend_ema and fast_ema < slow_ema and rsi > 35:
                 print("🔴 High-Accuracy Sell signal! Executing 50x SHORT...")
                 
                 balance = exchange.fetch_balance()
-                free_usdt = balance['USDT']['free']
+                free_usdt = float(balance['USDT']['free'])
                 
                 if free_usdt >= TRADE_MARGIN_USDT:
                     set_leverage()
-                    amount = (TRADE_MARGIN_USDT * LEVERAGE) / current_price
+                    amount = float((TRADE_MARGIN_USDT * LEVERAGE) / current_price)
                     
-                    # 0.3% TP | 0.2% SL | 0.15% Trailing Stop Distance
-                    tp_price = round(current_price * 0.997, 2)
-                    sl_price = round(current_price * 1.002, 2)
-                    trailing_dist = round(current_price * 0.0015, 2)
+                    tp_price = float(round(current_price * 0.997, 2))
+                    sl_price = float(round(current_price * 1.002, 2))
+                    trailing_dist = float(round(current_price * 0.0015, 2))
                     
                     params = {
                         'takeProfit': tp_price,
@@ -187,7 +187,7 @@ def check_market_and_trade():
 
 def trading_bot_loop():
     print("🚀 High-Frequency 50x Trailing Bot Started...")
-    send_telegram_message("🚀 *High-Freq 50x Trailing Sniper Bot Started 24/7!*")
+    send_telegram_message("🚀 *High-Freq 50x Trailing Sniper Bot Started 24/7! (JSON Error Fixed)*")
     
     while True:
         try:
